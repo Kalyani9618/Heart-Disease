@@ -253,3 +253,4 @@ Private — All rights reserved.
 ---
 
 *HeartGuard AI v2.1.0 — AI-powered cardiac health assistant*
+Maintained by Kalyani9618.
