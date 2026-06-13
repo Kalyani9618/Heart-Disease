@@ -1,0 +1,43 @@
+/**
+ * Chart Container Fixes
+ * Prevents recharts "width(-1) and height(-1)" errors
+ * Add this to your global CSS or Tailwind config
+ */
+
+/* Ensure chart containers don't collapse in flex/grid layouts */
+.chart-container,
+[class*="chart"],
+.recharts-responsive-container,
+div[class*="responsive"] {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Fix for ResponsiveContainer inside flex items */
+.flex .recharts-responsive-container,
+.grid .recharts-responsive-container {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Ensure parent containers have proper dimensions */
+.chart-wrapper {
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Fix for specific chart heights */
+[style*="height: 150px"],
+[style*="height: 200px"],
+[style*="height: 240px"] {
+  min-width: 0;
+  min-height: 0;
+}
+
+/* Tooltip positioning fix */
+.recharts-tooltip-wrapper {
+  position: relative;
+  z-index: 10;
+}

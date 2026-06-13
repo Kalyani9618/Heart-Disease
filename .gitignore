@@ -1,0 +1,21 @@
+# Keep all unique entries from both versions
+# Example combined:
+node_modules/
+.env
+.DS_Store
+__pycache__/
+*.pyc
+venv/
+.venv/
+dist/
+build/
+.pytest_cache/
+# ... etc
+# Prevent nested git repositories
+**/.git/
+.git/
+frontend/.env.local
+
+db-audit
+dump.rdb
+.vscode/

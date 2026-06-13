@@ -1,0 +1,28 @@
+# ============================================================
+# Colab-side Dependencies for Multi-Modal RAG System
+# Install in Colab: !pip install -r requirements.txt
+# ============================================================
+
+# --- Server & Tunneling ---
+flask>=3.0.0
+pyngrok>=7.0.0
+
+# --- ML Models ---
+torch>=2.0.0
+transformers>=4.50.0     # Gemma 3 / MedGemma 1.5 requires >=4.50
+sentence-transformers>=2.7.0
+accelerate>=0.30.0
+huggingface_hub>=0.23.0  # For snapshot_download (MedGemma first-run)
+
+# --- Vector Store ---
+chromadb>=0.5.0
+
+# --- Document Processing ---
+PyMuPDF>=1.24.0        # fitz — PDF text & image extraction
+Pillow>=10.0.0         # Image processing for SigLIP
+unstructured>=0.14.0   # Optional: advanced doc parsing
+
+# --- Utilities ---
+requests>=2.31.0
+numpy>=1.24.0
+tqdm>=4.66.0

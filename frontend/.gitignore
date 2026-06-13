@@ -1,0 +1,89 @@
+# ============================================================================
+# Frontend (React/Vite) .gitignore
+# ============================================================================
+
+# ===================
+# Environment Files (CRITICAL - Contains Secrets)
+# ===================
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.staging
+
+backup
+
+e2e
+check_ui_overflow.js
+check_ui_overflow_puppeteer.js
+playwright.config.js
+UI_BUG_LOG.json
+
+backend/models
+backend/test
+backend/uploads
+backend/photos
+backend/verify_visuals.py
+backend/verify_predictions.py
+backend/photos_final
+backend/verify_final_4000.py
+
+IMPLEMENTATION-STATUS.md
+
+CHATBOT_ANALYSIS.md
+
+
+*__pycache__*
+node_modules
+tests/
+test-results
+tests/
+NAVIGATION_FIX.md
+playwright-report
+# ===================
+# Logs
+# ===================
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ===================
+# Dependencies
+# ===================
+#node_modules
+
+# ===================
+# Build Output
+# ===================
+dist
+dist-ssr
+
+# ===================
+# Editor directories and files
+# ===================
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ===================
+# TypeScript
+# ===================
+*.tsbuildinfo
+
+# ===================
+# Testing
+# ===================
+coverage/
+.nyc_output/
+dump.rdb

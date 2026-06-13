@@ -1,0 +1,218 @@
+"""
+Prometheus Alert Rules for RAG System
+
+Defines alerting conditions for:
+- System health anomalies
+- High latency issues
+- Cache performance degradation
+- LLM error rates
+- Medical safety concerns (conflicts, validation failures)
+
+To use with Prometheus:
+1. Save rules as prometheus_rules.yml
+2. Add to prometheus.yml:
+   rule_files:
+     - "prometheus_rules.yml"
+3. Restart Prometheus
+"""
+
+groups:
+  - name: rag_health
+    interval: 30s
+    rules:
+      # Health check failures
+      - alert: HealthCheckFailed
+        expr: rag_health_check_passed == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: rag
+        annotations:
+          summary: "RAG system health check failed"
+          description: "System health check has failed. Immediate investigation required."
+      
+      # System uptime loss
+      - alert: SystemRestartDetected
+        expr: rag_system_uptime_seconds < 300
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "System recently restarted (uptime < 5 min)"
+          description: "System uptime is {{ $value }} seconds, indicating recent restart or crash."
+
+  - name: rag_memory
+    interval: 30s
+    rules:
+      # Cache hit rate degradation
+      - alert: CacheHitRateDegraded
+        expr: |-
+          (
+            rag_memory_cache_hits / (rag_memory_cache_hits + rag_memory_cache_misses)
+          ) < 0.6
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "Cache hit rate below 60%"
+          description: "Hit rate is {{ $value | humanizePercentage }}, performance may be degraded."
+      
+      # Excessive cache evictions
+      - alert: ExcessiveCacheEvictions
+        expr: rate(rag_memory_lru_evictions[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "High LRU cache eviction rate"
+          description: "{{ $value }} evictions/sec indicates cache is undersized."
+      
+      # Cache size growing unbounded
+      - alert: CacheSizeAnomaly
+        expr: rag_memory_cache_size_bytes > 1073741824  # 1 GB
+        for: 10m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "Cache size exceeds 1 GB"
+          description: "Cache is {{ $value | humanize }}B, may indicate memory leak."
+
+  - name: rag_retrieval
+    interval: 30s
+    rules:
+      # High vector search latency
+      - alert: VectorSearchLatencyHigh
+        expr: rag_vector_search_duration_ms > 5000
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "Vector search latency > 5s"
+          description: "Vector search taking {{ $value }}ms, may impact user experience."
+      
+      # High fusion retrieval latency
+      - alert: FusionSearchLatencyHigh
+        expr: rag_fusion_search_duration_ms > 10000
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "Fusion retrieval latency > 10s"
+          description: "Fusion search taking {{ $value }}ms, may impact responsiveness."
+      
+      # Graph search failures
+      - alert: GraphSearchUnavailable
+        expr: rate(rag_graph_search_duration_ms[5m]) == 0
+        for: 10m
+        labels:
+          severity: critical
+          service: rag
+        annotations:
+          summary: "Graph search appears offline"
+          description: "No graph search operations detected in last 10 minutes."
+
+  - name: rag_compression
+    interval: 30s
+    rules:
+      # Compression failure rate too high
+      - alert: CompressionFailureRate
+        expr: |-
+          (
+            rag_compression_failures / rag_compression_operations
+          ) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "Document compression failure rate > 10%"
+          description: "{{ $value | humanizePercentage }} of compression attempts failing."
+      
+      # Compression ratio unexpectedly low
+      - alert: CompressionRatioDegraded
+        expr: rag_compression_ratio > 0.8
+        for: 10m
+        labels:
+          severity: info
+          service: rag
+        annotations:
+          summary: "Document compression ratio > 80%"
+          description: "Compression is only achieving {{ $value | humanizePercentage }} reduction."
+
+  - name: rag_llm
+    interval: 30s
+    rules:
+      # High LLM API latency
+      - alert: LLMLatencyHigh
+        expr: rag_llm_latency_ms > 30000  # 30 seconds
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "LLM API latency > 30s"
+          description: "LLM operations taking {{ $value }}ms, may indicate API issues."
+      
+      # Excessive LLM errors
+      - alert: LLMErrorRateHigh
+        expr: rate(rag_llm_errors[5m]) > 0.1  # > 0.1 errors/sec
+        for: 5m
+        labels:
+          severity: critical
+          service: rag
+        annotations:
+          summary: "LLM error rate > 0.1 errors/sec"
+          description: "{{ $value }} LLM errors per second detected."
+      
+      # Token budget concerns
+      - alert: TokenUsageRapidGrowth
+        expr: rate(rag_llm_tokens_input[5m]) > 100000  # > 100k tokens/sec
+        for: 10m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "Token usage growing rapidly"
+          description: "{{ $value | humanize }} tokens/sec, may exceed budget soon."
+
+  - name: rag_safety
+    interval: 30s
+    rules:
+      # High validation error rate
+      - alert: ValidationErrorsIncreasing
+        expr: rate(rag_trust_validation_errors[5m]) > 5  # > 5 errors/sec
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "Trust validation errors detected"
+          description: "{{ $value }} validation errors per second."
+      
+      # Unusual conflict detection rate
+      - alert: ConflictsDetected
+        expr: rate(rag_conflict_detections[5m]) > 2  # > 2 conflicts/sec
+        for: 5m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "High medical conflict detection rate"
+          description: "{{ $value }} conflicts detected per second, data quality issue possible."
+      
+      # Anomalous active requests
+      - alert: RequestQueueBuildup
+        expr: rag_active_requests > 100
+        for: 10m
+        labels:
+          severity: warning
+          service: rag
+        annotations:
+          summary: "Request queue buildup"
+          description: "{{ $value }} active requests, system may be overwhelmed."
